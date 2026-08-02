@@ -1,0 +1,13 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.nupkg
+.DS_Store
+.vscode/
+*.apk
+*.aab
+*.ipa
+*.db3
+appsettings.json

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Equaly.ViewModels"
+             xmlns:models="clr-namespace:Equaly.Models"
+             x:Class="Equaly.Views.SettlementsPage"
+             x:DataType="vm:SettlementsViewModel"
+             BackgroundColor="#F8F9FA"
+             Title="Hesaplaşma">
+
+    <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="16">
+
+        <Label Grid.Row="0"
+               Text="Kim Kime Ne Kadar Ödeyecek?"
+               FontSize="22"
+               FontAttributes="Bold"
+               TextColor="#2B2D42" />
+
+        <RefreshView Grid.Row="1"
+                     Command="{Binding LoadSettlementsCommand}"
+                     IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Settlements}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                        <Label Text="✓" FontSize="40" TextColor="#2ECC71" HorizontalOptions="Center" />
+                        <Label Text="Herkes ödeşmiş durumda!"
+                               TextColor="#6C757D"
+                               FontSize="16"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Settlement">
+                        <Border Stroke="#DEE2E6"
+                                StrokeShape="RoundRectangle 14"
+                                BackgroundColor="White"
+                                Padding="16"
+                                Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Grid.ColumnSpan="2"
+                                       Text="{Binding DisplayText}"
+                                       FontSize="16"
+                                       TextColor="#2B2D42" />
+
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       Text="{Binding FromPersonName, StringFormat='Kimden: {0}'}"
+                                       FontSize="12"
+                                       TextColor="#E74C3C" />
+
+                                <Label Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding Amount, StringFormat='{0:0.##} TL'}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#4361EE" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+</ContentPage>
