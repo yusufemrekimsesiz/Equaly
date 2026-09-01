@@ -31,7 +31,7 @@
 		<ApplicationTitle>Equaly</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.equaly</ApplicationId>
+		<ApplicationId>com.yusuf.equaly</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -57,7 +57,7 @@
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
-		
+
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
@@ -71,21 +71,27 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
+		<!-- sqlite-net-pcl'nin çektiği SQLitePCLRaw.lib.e_sqlite3 2.1.x serisi CVE-2025-6965 (GHSA-2m69-gcr7-jv3q)
+		     nedeniyle zafiyetli. Ana pakette 3.x sürümüne sabitliyoruz. Android'e özel paket 3.x serisine hiç
+		     geçmedi (SQLitePCLRaw 3.0'da platform paketleri birleştirildi), bu yüzden onu zafiyet aralığının
+		     (0 - 2.1.11) dışındaki en güncel sürüm olan 2.1.13'e sabitliyoruz. -->
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.13" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\AddExpensePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ExpensesPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\PeoplePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\SettlementsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="Views\AddExpensePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\ExpensesPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\PeoplePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\SettlementsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 </Project>

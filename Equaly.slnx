@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="Equaly/Equaly.csproj" />
+  <Project Path="Equaly.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>

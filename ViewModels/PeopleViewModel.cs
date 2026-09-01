@@ -52,11 +52,17 @@ namespace Equaly.ViewModels
             if (string.IsNullOrWhiteSpace(NewPersonName))
                 return;
 
-            await _databaseService.AddPersonAsync(NewPersonName.Trim());
-
-            NewPersonName = string.Empty;
-
-            await LoadPeopleAsync();
+            try
+            {
+                await _databaseService.AddPersonAsync(NewPersonName);
+                NewPersonName = string.Empty;
+                await LoadPeopleAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Aynı isimde kişi zaten var, boş isim vb. doğrulama hataları buraya düşer.
+                await Shell.Current.DisplayAlert("Eklenemedi", ex.Message, "Tamam");
+            }
         }
 
         [RelayCommand]
