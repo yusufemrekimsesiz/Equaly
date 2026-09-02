@@ -1,4 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+	<application android:allowBackup="false"
+	             android:hasFragileUserData="true"
+	             android:networkSecurityConfig="@xml/network_security_config"
+	             android:icon="@mipmap/appicon"
+	             android:roundIcon="@mipmap/appicon_round"
+	             android:supportsRtl="true">
+		<provider android:name="androidx.core.content.FileProvider"
+		          android:authorities="${applicationId}.fileProvider"
+		          tools:node="remove" />
+
+	</application>
 </manifest>
