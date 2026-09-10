@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Equaly.Models;
+using Equaly.Resources.Strings;
 using Equaly.Services;
 using Equaly.Views;
 
@@ -60,8 +61,7 @@ namespace Equaly.ViewModels
             }
             catch (InvalidOperationException ex)
             {
-                // Aynı isimde kişi zaten var, boş isim vb. doğrulama hataları buraya düşer.
-                await Shell.Current.DisplayAlert("Eklenemedi", ex.Message, "Tamam");
+                await Shell.Current.DisplayAlert(AppStrings.CannotAddTitle, ex.Message, AppStrings.Ok);
             }
         }
 
@@ -90,9 +90,9 @@ namespace Equaly.ViewModels
                 return;
 
             bool confirm = await Shell.Current.DisplayAlert(
-                "Kişiyi Sil",
-                $"{person.Name} silinsin mi?",
-                "Sil", "Vazgeç");
+                AppStrings.DeletePersonTitle,
+                AppStrings.DeletePersonConfirm(person.Name),
+                AppStrings.Delete, AppStrings.Cancel);
 
             if (!confirm)
                 return;
@@ -101,7 +101,7 @@ namespace Equaly.ViewModels
 
             if (error is not null)
             {
-                await Shell.Current.DisplayAlert("Silinemedi", error, "Tamam");
+                await Shell.Current.DisplayAlert(AppStrings.CannotDeleteTitle, error, AppStrings.Ok);
                 return;
             }
 

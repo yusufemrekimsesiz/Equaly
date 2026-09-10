@@ -3,6 +3,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Equaly.Models;
+using Equaly.Resources.Strings;
 using Equaly.Services;
 
 namespace Equaly.ViewModels
@@ -12,10 +13,8 @@ namespace Equaly.ViewModels
     {
         private readonly DatabaseService _databaseService;
 
-        // Ödeyen kişi seçimi için Picker'a bağlanan liste
         public ObservableCollection<Person> People { get; } = new();
 
-        // Katılımcı çoklu-seçim CollectionView'ine bağlanan liste (SelectedItems object gerektirir)
         public ObservableCollection<object> SelectedParticipants { get; } = new();
 
         [ObservableProperty]
@@ -31,13 +30,11 @@ namespace Equaly.ViewModels
         private string errorMessage = string.Empty;
 
         [ObservableProperty]
-        private string pageTitle = "Yeni Harcama";
+        private string pageTitle = AppStrings.NewExpenseTitle;
 
         [ObservableProperty]
-        private string saveButtonText = "Ekle";
+        private string saveButtonText = AppStrings.Add;
 
-        // Shell navigasyonundan gelen sorgu parametresi.
-        // 0 ise yeni harcama, 0'dan farklıysa düzenleme modu.
         [ObservableProperty]
         private int expenseId;
 
@@ -75,13 +72,12 @@ namespace Equaly.ViewModels
             Description = string.Empty;
             ErrorMessage = string.Empty;
 
-            // Yeni harcamada varsayılan olarak herkes katılımcı kabul edilir.
             SelectedParticipants.Clear();
             foreach (var person in People)
                 SelectedParticipants.Add(person);
 
-            PageTitle = "Yeni Harcama";
-            SaveButtonText = "Ekle";
+            PageTitle = AppStrings.NewExpenseTitle;
+            SaveButtonText = AppStrings.Add;
         }
 
         private async Task LoadForEditAsync(int id)
@@ -101,13 +97,13 @@ namespace Equaly.ViewModels
             SelectedParticipants.Clear();
             var participantsToSelect = participantIds.Count > 0
                 ? People.Where(p => participantIds.Contains(p.Id))
-                : People; // eski kayıt: katılımcı belirtilmemişse herkes seçili gösterilir
+                : People;
 
             foreach (var person in participantsToSelect)
                 SelectedParticipants.Add(person);
 
-            PageTitle = "Harcamayı Düzenle";
-            SaveButtonText = "Kaydet";
+            PageTitle = AppStrings.EditExpenseTitle;
+            SaveButtonText = AppStrings.Save;
         }
 
         [RelayCommand]
@@ -117,26 +113,26 @@ namespace Equaly.ViewModels
 
             if (SelectedPayer is null)
             {
-                ErrorMessage = "Lütfen ödeyen kişiyi seçin.";
+                ErrorMessage = AppStrings.SelectPayerError;
                 return;
             }
 
             if (!decimal.TryParse(Amount, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsedAmount)
                 && !decimal.TryParse(Amount, out parsedAmount))
             {
-                ErrorMessage = "Lütfen geçerli bir tutar girin.";
+                ErrorMessage = AppStrings.InvalidAmountError;
                 return;
             }
 
             if (parsedAmount <= 0)
             {
-                ErrorMessage = "Tutar sıfırdan büyük olmalıdır.";
+                ErrorMessage = AppStrings.AmountMustBePositiveError;
                 return;
             }
 
             if (SelectedParticipants.Count == 0)
             {
-                ErrorMessage = "Lütfen en az bir katılımcı seçin.";
+                ErrorMessage = AppStrings.SelectParticipantError;
                 return;
             }
 
@@ -149,7 +145,7 @@ namespace Equaly.ViewModels
                     Id = _loadedExpenseId,
                     PayerId = SelectedPayer.Id,
                     TotalAmount = parsedAmount,
-                    Description = string.IsNullOrWhiteSpace(Description) ? "Harcama" : Description.Trim()
+                    Description = string.IsNullOrWhiteSpace(Description) ? AppStrings.DefaultExpenseDescription : Description.Trim()
                 };
 
                 await _databaseService.UpdateExpenseAsync(expense, participantIds);
@@ -160,7 +156,7 @@ namespace Equaly.ViewModels
                 {
                     PayerId = SelectedPayer.Id,
                     TotalAmount = parsedAmount,
-                    Description = string.IsNullOrWhiteSpace(Description) ? "Harcama" : Description.Trim()
+                    Description = string.IsNullOrWhiteSpace(Description) ? AppStrings.DefaultExpenseDescription : Description.Trim()
                 };
 
                 await _databaseService.AddExpenseAsync(expense, participantIds);

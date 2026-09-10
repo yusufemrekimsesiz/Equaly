@@ -1,3 +1,5 @@
+using Equaly.Resources.Strings;
+
 namespace Equaly.Models
 {
     public class Settlement
@@ -8,6 +10,8 @@ namespace Equaly.Models
 
         public decimal Amount { get; set; }
 
-        public string DisplayText => $"{FromPersonName}, {ToPersonName}'e {Amount:0.##} TL ödemeli";
+        public string DisplayText => AppStrings.SettlementDisplay(FromPersonName, ToPersonName, Amount);
+
+        public string FromLabelDisplay => AppStrings.FromLabelFormat(FromPersonName);
     }
 }

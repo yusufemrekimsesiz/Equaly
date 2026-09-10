@@ -1,5 +1,6 @@
 using SQLite;
 using Equaly.Models;
+using Equaly.Resources.Strings;
 
 namespace Equaly.Services
 {
@@ -7,9 +8,6 @@ namespace Equaly.Services
     {
         private SQLiteAsyncConnection _database;
 
-        // Yazma işlemlerinin (add/update/delete) aynı anda birbirini ezmesini önleyen kilit.
-        // Örn. kullanıcı "Ekle" butonuna hızlıca iki kez basarsa, ikinci çağrı ilk işlem
-        // bitene kadar bekler; böylece bakiyeler tutarsız bir ara duruma düşmez.
         private readonly SemaphoreSlim _writeLock = new(1, 1);
 
         private async Task InitAsync()
@@ -54,8 +52,6 @@ namespace Equaly.Services
             return rows.Select(r => r.PersonId).ToList();
         }
 
-        // Kişi ekler. Aynı isimde (büyük/küçük harf duyarsız) bir kişi zaten varsa
-        // InvalidOperationException fırlatır; ViewModel bunu yakalayıp kullanıcıya gösterir.
         public async Task AddPersonAsync(string name)
         {
             await InitAsync();
@@ -63,7 +59,7 @@ namespace Equaly.Services
             var trimmedName = name.Trim();
 
             if (string.IsNullOrWhiteSpace(trimmedName))
-                throw new InvalidOperationException("Kişi adı boş olamaz.");
+                throw new InvalidOperationException(AppStrings.PersonNameEmptyError);
 
             await _writeLock.WaitAsync();
             try
@@ -76,7 +72,7 @@ namespace Equaly.Services
                         string.Equals(p.Name.Trim(), trimmedName, StringComparison.OrdinalIgnoreCase));
 
                     if (duplicate)
-                        throw new InvalidOperationException($"\"{trimmedName}\" isimli bir kişi zaten mevcut.");
+                        throw new InvalidOperationException(AppStrings.DuplicatePersonError(trimmedName));
 
                     conn.Insert(new Person { Name = trimmedName, Balance = 0 });
 
@@ -89,17 +85,16 @@ namespace Equaly.Services
             }
         }
 
-        // Kişiyi silmeye çalışır. Başarılıysa null, başarısızsa kullanıcıya gösterilecek hata mesajını döner.
         public async Task<string> DeletePersonAsync(Person person)
         {
             await InitAsync();
 
             if (Math.Abs(person.Balance) > 0.01m)
-                return $"{person.Name} kişisinin bakiyesi sıfır değil. Önce hesaplaşma yapılmalı.";
+                return AppStrings.BalanceNotZeroError(person.Name);
 
             var paidExpenses = await _database.Table<Expense>().Where(e => e.PayerId == person.Id).ToListAsync();
             if (paidExpenses.Count > 0)
-                return $"{person.Name}, bir veya daha fazla harcamayı ödemiş görünüyor. Önce bu harcamaları silin veya düzenleyin.";
+                return AppStrings.PersonHasPaidExpensesError(person.Name);
 
             await _writeLock.WaitAsync();
             try
@@ -218,7 +213,6 @@ namespace Equaly.Services
             }
         }
 
-        // Dışarıdan (örn. manuel yeniden hesaplama tetiklemek için) çağrılabilen async sürüm.
         public async Task RecalculateBalancesAsync()
         {
             await InitAsync();
@@ -234,14 +228,6 @@ namespace Equaly.Services
             }
         }
 
-        // Tüm harcamaları baştan tarayarak her kişinin net bakiyesini yeniden hesaplar.
-        // Senkron çalışır çünkü bir SQLite transaction'ı (RunInTransactionAsync) içinden
-        // çağrılıyor — transaction içinde tüm okuma/yazma işlemleri ATOMIK olarak tamamlanır,
-        // yarıda kesilirse (örn. uygulama çökerse) hiçbir değişiklik kalıcı olmaz (rollback).
-        //
-        // Paylaşım mantığı: her harcama SADECE kendi katılımcı listesindeki kişiler arasında
-        // eşit paylaştırılır. Katılımcı listesi boşsa (eski/basit kayıtlar), geriye dönük
-        // uyumluluk için gruptaki HERKESE eşit bölünür.
         private static void RecalculateBalancesSync(SQLiteConnection conn)
         {
             var people = conn.Table<Person>().ToList();

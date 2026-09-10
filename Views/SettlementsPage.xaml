@@ -3,15 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Equaly.ViewModels"
              xmlns:models="clr-namespace:Equaly.Models"
+             xmlns:strings="clr-namespace:Equaly.Resources.Strings"
              x:Class="Equaly.Views.SettlementsPage"
              x:DataType="vm:SettlementsViewModel"
              BackgroundColor="#F8F9FA"
-             Title="Hesaplaşma">
+             Title="{x:Static strings:AppStrings.SettleUpNav}">
 
     <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="16">
 
         <Label Grid.Row="0"
-               Text="Kim Kime Ne Kadar Ödeyecek?"
+               Text="{x:Static strings:AppStrings.SettlementsTitle}"
                FontSize="22"
                FontAttributes="Bold"
                TextColor="#2B2D42" />
@@ -23,7 +24,7 @@
                 <CollectionView.EmptyView>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
                         <Label Text="✓" FontSize="40" TextColor="#2ECC71" HorizontalOptions="Center" />
-                        <Label Text="Herkes ödeşmiş durumda!"
+                        <Label Text="{x:Static strings:AppStrings.AllSettledUp}"
                                TextColor="#6C757D"
                                FontSize="16"
                                HorizontalOptions="Center" />
@@ -45,7 +46,7 @@
                                        TextColor="#2B2D42" />
 
                                 <Label Grid.Row="1" Grid.Column="0"
-                                       Text="{Binding FromPersonName, StringFormat='Kimden: {0}'}"
+                                       Text="{Binding FromLabelDisplay}"
                                        FontSize="12"
                                        TextColor="#E74C3C" />
 

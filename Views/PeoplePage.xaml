@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:Equaly.ViewModels"
              xmlns:models="clr-namespace:Equaly.Models"
              xmlns:conv="clr-namespace:Equaly.Converters"
+             xmlns:strings="clr-namespace:Equaly.Resources.Strings"
              x:Class="Equaly.Views.PeoplePage"
              x:DataType="vm:PeopleViewModel"
              BackgroundColor="#F8F9FA"
@@ -15,14 +16,12 @@
 
     <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="20" RowSpacing="16">
 
-        <!-- Başlık -->
         <Label Grid.Row="0"
-               Text="Grup Bakiyeleri"
+               Text="{x:Static strings:AppStrings.GroupBalancesTitle}"
                FontSize="26"
                FontAttributes="Bold"
                TextColor="#2B2D42" />
 
-        <!-- Yeni kişi ekleme alanı -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
             <Border Grid.Column="0"
                     Stroke="#DEE2E6"
@@ -31,14 +30,14 @@
                     Padding="12,0"
                     HeightRequest="50">
                 <Entry Text="{Binding NewPersonName}"
-                       Placeholder="Yeni kişi adı"
+                       Placeholder="{x:Static strings:AppStrings.NewPersonPlaceholder}"
                        TextColor="#2B2D42"
                        PlaceholderColor="#ADB5BD"
                        VerticalOptions="Center" />
             </Border>
 
             <Button Grid.Column="1"
-                    Text="Ekle"
+                    Text="{x:Static strings:AppStrings.Add}"
                     Command="{Binding AddPersonCommand}"
                     BackgroundColor="#2B2D42"
                     TextColor="White"
@@ -47,14 +46,13 @@
                     HeightRequest="50" />
         </Grid>
 
-        <!-- Kişi listesi -->
         <RefreshView Grid.Row="2"
                      Command="{Binding LoadPeopleCommand}"
                      IsRefreshing="{Binding IsBusy}">
             <CollectionView ItemsSource="{Binding People}">
                 <CollectionView.EmptyView>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
-                        <Label Text="Henüz kişi eklenmedi"
+                        <Label Text="{x:Static strings:AppStrings.NoPeopleYet}"
                                TextColor="#ADB5BD"
                                FontSize="16"
                                HorizontalOptions="Center" />
@@ -66,7 +64,7 @@
                         <SwipeView>
                             <SwipeView.RightItems>
                                 <SwipeItems>
-                                    <SwipeItem Text="Sil"
+                                    <SwipeItem Text="{x:Static strings:AppStrings.Delete}"
                                                BackgroundColor="#E74C3C"
                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PeopleViewModel}}, Path=DeletePersonCommand}"
                                                CommandParameter="{Binding .}" />
@@ -100,10 +98,9 @@
             </CollectionView>
         </RefreshView>
 
-        <!-- Alt aksiyon butonları -->
         <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8">
             <Button Grid.Column="0"
-                    Text="Harcamalar"
+                    Text="{x:Static strings:AppStrings.ExpensesNav}"
                     Command="{Binding GoToExpensesCommand}"
                     BackgroundColor="#F1F3F5"
                     TextColor="#2B2D42"
@@ -112,7 +109,7 @@
                     FontSize="13" />
 
             <Button Grid.Column="1"
-                    Text="Harcama Ekle"
+                    Text="{x:Static strings:AppStrings.AddExpenseNav}"
                     Command="{Binding GoToAddExpenseCommand}"
                     BackgroundColor="#2B2D42"
                     TextColor="White"
@@ -121,7 +118,7 @@
                     FontSize="13" />
 
             <Button Grid.Column="2"
-                    Text="Hesaplaş"
+                    Text="{x:Static strings:AppStrings.SettleUpNav}"
                     Command="{Binding GoToSettlementsCommand}"
                     BackgroundColor="#4361EE"
                     TextColor="White"

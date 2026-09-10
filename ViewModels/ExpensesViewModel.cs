@@ -2,13 +2,12 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Equaly.Models;
+using Equaly.Resources.Strings;
 using Equaly.Services;
 using Equaly.Views;
 
 namespace Equaly.ViewModels
 {
-    // Harcama listesinde göstermek için kullanılan basit görüntüleme modeli
-    // (Expense entity'sine ödeyen adı gibi ek bilgiler eklenmiş hali).
     public class ExpenseListItem
     {
         public int Id { get; set; }
@@ -16,6 +15,8 @@ namespace Equaly.ViewModels
         public decimal Amount { get; set; }
         public string PayerName { get; set; } = string.Empty;
         public DateTime Date { get; set; }
+
+        public string PayerDisplay => AppStrings.PaidByFormat(PayerName);
     }
 
     public partial class ExpensesViewModel : ObservableObject
@@ -52,7 +53,7 @@ namespace Equaly.ViewModels
                         Id = expense.Id,
                         Description = expense.Description,
                         Amount = expense.TotalAmount,
-                        PayerName = payer?.Name ?? "Bilinmiyor",
+                        PayerName = payer?.Name ?? "-",
                         Date = expense.Date
                     });
                 }
@@ -79,9 +80,9 @@ namespace Equaly.ViewModels
                 return;
 
             bool confirm = await Shell.Current.DisplayAlert(
-                "Harcamayı Sil",
-                $"\"{item.Description}\" harcamasını silmek istediğinize emin misiniz?",
-                "Sil", "Vazgeç");
+                AppStrings.DeleteExpenseTitle,
+                AppStrings.DeleteExpenseConfirm(item.Description),
+                AppStrings.Delete, AppStrings.Cancel);
 
             if (!confirm)
                 return;

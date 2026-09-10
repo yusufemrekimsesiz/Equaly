@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Equaly.ViewModels"
              xmlns:models="clr-namespace:Equaly.Models"
+             xmlns:strings="clr-namespace:Equaly.Resources.Strings"
              x:Class="Equaly.Views.AddExpensePage"
              x:DataType="vm:AddExpenseViewModel"
              BackgroundColor="#F8F9FA"
@@ -19,9 +20,8 @@
                    FontAttributes="Bold"
                    TextColor="#2B2D42" />
 
-            <!-- Ödeyen kişi -->
             <VerticalStackLayout Grid.Row="1" Spacing="6">
-                <Label Text="Ödeyen Kişi" TextColor="#6C757D" FontSize="14" />
+                <Label Text="{x:Static strings:AppStrings.PayerLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="White"
@@ -31,14 +31,13 @@
                             ItemDisplayBinding="{Binding Name}"
                             SelectedItem="{Binding SelectedPayer}"
                             TextColor="#2B2D42"
-                            Title="Kişi seçin"
+                            Title="{x:Static strings:AppStrings.SelectPersonPlaceholder}"
                             VerticalOptions="Center" />
                 </Border>
             </VerticalStackLayout>
 
-            <!-- Tutar -->
             <VerticalStackLayout Grid.Row="2" Spacing="6">
-                <Label Text="Tutar (TL)" TextColor="#6C757D" FontSize="14" />
+                <Label Text="{x:Static strings:AppStrings.AmountLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="White"
@@ -53,25 +52,23 @@
                 </Border>
             </VerticalStackLayout>
 
-            <!-- Açıklama -->
             <VerticalStackLayout Grid.Row="3" Spacing="6">
-                <Label Text="Açıklama" TextColor="#6C757D" FontSize="14" />
+                <Label Text="{x:Static strings:AppStrings.DescriptionLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="White"
                         Padding="12,0"
                         HeightRequest="50">
                     <Entry Text="{Binding Description}"
-                           Placeholder="Örn: Market alışverişi"
+                           Placeholder="{x:Static strings:AppStrings.DescriptionPlaceholder}"
                            TextColor="#2B2D42"
                            PlaceholderColor="#ADB5BD"
                            VerticalOptions="Center" />
                 </Border>
             </VerticalStackLayout>
 
-            <!-- Katılımcılar -->
             <VerticalStackLayout Grid.Row="4" Spacing="6">
-                <Label Text="Katılımcılar (harcamayı kimler paylaşacak)" TextColor="#6C757D" FontSize="14" />
+                <Label Text="{x:Static strings:AppStrings.ParticipantsLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="White"
@@ -119,13 +116,11 @@
                 </Border>
             </VerticalStackLayout>
 
-            <!-- Hata mesajı -->
             <Label Grid.Row="5"
                    Text="{Binding ErrorMessage}"
                    TextColor="#E74C3C"
                    FontSize="13" />
 
-            <!-- Kaydet butonu -->
             <Button Grid.Row="6"
                     Text="{Binding SaveButtonText}"
                     Command="{Binding SaveExpenseCommand}"
@@ -134,9 +129,8 @@
                     CornerRadius="14"
                     HeightRequest="52" />
 
-            <!-- İptal -->
             <Button Grid.Row="7"
-                    Text="İptal"
+                    Text="{x:Static strings:AppStrings.Cancel}"
                     Command="{Binding CancelCommand}"
                     BackgroundColor="Transparent"
                     TextColor="#6C757D"
@@ -145,4 +139,3 @@
         </Grid>
     </ScrollView>
 </ContentPage>
-
