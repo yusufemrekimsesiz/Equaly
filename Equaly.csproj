@@ -86,6 +86,9 @@
 		<MauiXaml Update="Views\ExpensesPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\GroupsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\PeoplePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

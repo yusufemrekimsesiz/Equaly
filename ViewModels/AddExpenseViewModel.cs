@@ -8,6 +8,15 @@ using Equaly.Services;
 
 namespace Equaly.ViewModels
 {
+    // Category Picker için gösterim modeli: Key veritabanına yazılır, DisplayName ekranda görünür.
+    public class CategoryOption
+    {
+        public string Key { get; set; } = ExpenseCategories.Other;
+        public string DisplayName { get; set; } = string.Empty;
+
+        public override string ToString() => DisplayName;
+    }
+
     [QueryProperty(nameof(ExpenseId), "expenseId")]
     public partial class AddExpenseViewModel : ObservableObject
     {
@@ -17,8 +26,13 @@ namespace Equaly.ViewModels
 
         public ObservableCollection<object> SelectedParticipants { get; } = new();
 
+        public ObservableCollection<CategoryOption> Categories { get; } = new();
+
         [ObservableProperty]
         private Person selectedPayer;
+
+        [ObservableProperty]
+        private CategoryOption selectedCategory;
 
         [ObservableProperty]
         private string amount = string.Empty;
@@ -43,12 +57,21 @@ namespace Equaly.ViewModels
         public AddExpenseViewModel(DatabaseService databaseService)
         {
             _databaseService = databaseService;
+
+            foreach (var key in ExpenseCategories.All)
+            {
+                Categories.Add(new CategoryOption
+                {
+                    Key = key,
+                    DisplayName = $"{AppStrings.CategoryEmoji(key)} {AppStrings.CategoryDisplayName(key)}"
+                });
+            }
         }
 
         [RelayCommand]
         public async Task LoadAsync()
         {
-            var people = await _databaseService.GetPeopleAsync();
+            var people = await _databaseService.GetPeopleAsync(AppSession.CurrentGroupId);
 
             People.Clear();
             foreach (var person in people)
@@ -71,6 +94,7 @@ namespace Equaly.ViewModels
             Amount = string.Empty;
             Description = string.Empty;
             ErrorMessage = string.Empty;
+            SelectedCategory = Categories.FirstOrDefault(c => c.Key == ExpenseCategories.Other);
 
             SelectedParticipants.Clear();
             foreach (var person in People)
@@ -91,6 +115,8 @@ namespace Equaly.ViewModels
             SelectedPayer = People.FirstOrDefault(p => p.Id == expense.PayerId);
             Amount = expense.TotalAmount.ToString(CultureInfo.InvariantCulture);
             Description = expense.Description;
+            SelectedCategory = Categories.FirstOrDefault(c => c.Key == expense.Category)
+                                ?? Categories.FirstOrDefault(c => c.Key == ExpenseCategories.Other);
 
             var participantIds = await _databaseService.GetParticipantIdsAsync(id);
 
@@ -137,14 +163,17 @@ namespace Equaly.ViewModels
             }
 
             var participantIds = SelectedParticipants.OfType<Person>().Select(p => p.Id).ToList();
+            var categoryKey = SelectedCategory?.Key ?? ExpenseCategories.Other;
 
             if (_loadedExpenseId > 0)
             {
                 var expense = new Expense
                 {
                     Id = _loadedExpenseId,
+                    GroupId = AppSession.CurrentGroupId,
                     PayerId = SelectedPayer.Id,
                     TotalAmount = parsedAmount,
+                    Category = categoryKey,
                     Description = string.IsNullOrWhiteSpace(Description) ? AppStrings.DefaultExpenseDescription : Description.Trim()
                 };
 
@@ -154,8 +183,10 @@ namespace Equaly.ViewModels
             {
                 var expense = new Expense
                 {
+                    GroupId = AppSession.CurrentGroupId,
                     PayerId = SelectedPayer.Id,
                     TotalAmount = parsedAmount,
+                    Category = categoryKey,
                     Description = string.IsNullOrWhiteSpace(Description) ? AppStrings.DefaultExpenseDescription : Description.Trim()
                 };
 

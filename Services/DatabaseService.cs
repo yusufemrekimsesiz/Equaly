@@ -18,21 +18,90 @@ namespace Equaly.Services
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "equaly.db3");
             _database = new SQLiteAsyncConnection(dbPath);
 
+            await _database.CreateTableAsync<Group>();
             await _database.CreateTableAsync<Person>();
             await _database.CreateTableAsync<Expense>();
             await _database.CreateTableAsync<ExpenseParticipant>();
         }
 
-        public async Task<List<Person>> GetPeopleAsync()
+        // ---------------- GRUPLAR ----------------
+
+        public async Task<List<Group>> GetGroupsAsync()
         {
             await InitAsync();
-            return await _database.Table<Person>().ToListAsync();
+            var groups = await _database.Table<Group>().ToListAsync();
+            return groups.OrderBy(g => g.CreatedDate).ToList();
         }
 
-        public async Task<List<Expense>> GetExpensesAsync()
+        public async Task<Group> AddGroupAsync(string name)
         {
             await InitAsync();
-            var expenses = await _database.Table<Expense>().ToListAsync();
+
+            var trimmedName = name.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedName))
+                throw new InvalidOperationException(AppStrings.GroupNameEmptyError);
+
+            var group = new Group { Name = trimmedName };
+
+            await _writeLock.WaitAsync();
+            try
+            {
+                await _database.InsertAsync(group);
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
+
+            return group;
+        }
+
+        // Grubu ve içindeki TÜM kişi/harcama/katılımcı kayıtlarını kalıcı olarak siler.
+        public async Task DeleteGroupAsync(Group group)
+        {
+            await InitAsync();
+
+            await _writeLock.WaitAsync();
+            try
+            {
+                await _database.RunInTransactionAsync(conn =>
+                {
+                    var expenseIds = conn.Table<Expense>()
+                        .Where(e => e.GroupId == group.Id)
+                        .ToList()
+                        .Select(e => e.Id)
+                        .ToList();
+
+                    foreach (var expenseId in expenseIds)
+                    {
+                        var links = conn.Table<ExpenseParticipant>().Where(p => p.ExpenseId == expenseId).ToList();
+                        foreach (var link in links)
+                            conn.Delete(link);
+                    }
+
+                    conn.Table<Expense>().Delete(e => e.GroupId == group.Id);
+                    conn.Table<Person>().Delete(p => p.GroupId == group.Id);
+                    conn.Delete(group);
+                });
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
+        }
+
+        // ---------------- KİŞİLER (gruba göre) ----------------
+
+        public async Task<List<Person>> GetPeopleAsync(int groupId)
+        {
+            await InitAsync();
+            return await _database.Table<Person>().Where(p => p.GroupId == groupId).ToListAsync();
+        }
+
+        public async Task<List<Expense>> GetExpensesAsync(int groupId)
+        {
+            await InitAsync();
+            var expenses = await _database.Table<Expense>().Where(e => e.GroupId == groupId).ToListAsync();
             return expenses.OrderByDescending(e => e.Date).ToList();
         }
 
@@ -52,7 +121,7 @@ namespace Equaly.Services
             return rows.Select(r => r.PersonId).ToList();
         }
 
-        public async Task AddPersonAsync(string name)
+        public async Task AddPersonAsync(int groupId, string name)
         {
             await InitAsync();
 
@@ -66,7 +135,7 @@ namespace Equaly.Services
             {
                 await _database.RunInTransactionAsync(conn =>
                 {
-                    var people = conn.Table<Person>().ToList();
+                    var people = conn.Table<Person>().Where(p => p.GroupId == groupId).ToList();
 
                     var duplicate = people.Any(p =>
                         string.Equals(p.Name.Trim(), trimmedName, StringComparison.OrdinalIgnoreCase));
@@ -74,9 +143,9 @@ namespace Equaly.Services
                     if (duplicate)
                         throw new InvalidOperationException(AppStrings.DuplicatePersonError(trimmedName));
 
-                    conn.Insert(new Person { Name = trimmedName, Balance = 0 });
+                    conn.Insert(new Person { GroupId = groupId, Name = trimmedName, Balance = 0 });
 
-                    RecalculateBalancesSync(conn);
+                    RecalculateBalancesSync(conn, groupId);
                 });
             }
             finally
@@ -110,7 +179,7 @@ namespace Equaly.Services
 
                     conn.Delete(person);
 
-                    RecalculateBalancesSync(conn);
+                    RecalculateBalancesSync(conn, person.GroupId);
                 });
             }
             finally
@@ -141,7 +210,7 @@ namespace Equaly.Services
                         });
                     }
 
-                    RecalculateBalancesSync(conn);
+                    RecalculateBalancesSync(conn, expense.GroupId);
                 });
             }
             finally
@@ -177,7 +246,7 @@ namespace Equaly.Services
                         });
                     }
 
-                    RecalculateBalancesSync(conn);
+                    RecalculateBalancesSync(conn, expense.GroupId);
                 });
             }
             finally
@@ -186,6 +255,10 @@ namespace Equaly.Services
             }
         }
 
+        // Not: dışarıdan gelen 'expense' parametresi sadece Id taşıyan eksik bir nesne olabilir
+        // (örn. UI listesinden silme). GroupId'yi HER ZAMAN veritabanından tazeden okuyoruz,
+        // aksi halde yanlış (sıfır/varsayılan) bir GroupId ile bakiyeler yanlış grup için
+        // yeniden hesaplanır ve gerçek grubun bakiyeleri hiç güncellenmemiş kalır.
         public async Task DeleteExpenseAsync(Expense expense)
         {
             await InitAsync();
@@ -195,16 +268,20 @@ namespace Equaly.Services
             {
                 await _database.RunInTransactionAsync(conn =>
                 {
+                    var actualExpense = conn.Table<Expense>().Where(e => e.Id == expense.Id).FirstOrDefault();
+                    if (actualExpense is null)
+                        return;
+
                     var links = conn.Table<ExpenseParticipant>()
-                        .Where(p => p.ExpenseId == expense.Id)
+                        .Where(p => p.ExpenseId == actualExpense.Id)
                         .ToList();
 
                     foreach (var link in links)
                         conn.Delete(link);
 
-                    conn.Delete(expense);
+                    conn.Delete(actualExpense);
 
-                    RecalculateBalancesSync(conn);
+                    RecalculateBalancesSync(conn, actualExpense.GroupId);
                 });
             }
             finally
@@ -213,14 +290,14 @@ namespace Equaly.Services
             }
         }
 
-        public async Task RecalculateBalancesAsync()
+        public async Task RecalculateBalancesAsync(int groupId)
         {
             await InitAsync();
 
             await _writeLock.WaitAsync();
             try
             {
-                await _database.RunInTransactionAsync(conn => RecalculateBalancesSync(conn));
+                await _database.RunInTransactionAsync(conn => RecalculateBalancesSync(conn, groupId));
             }
             finally
             {
@@ -228,14 +305,20 @@ namespace Equaly.Services
             }
         }
 
-        private static void RecalculateBalancesSync(SQLiteConnection conn)
+        // Artık SADECE bir grubun içindeki kişi/harcamaları tarar (gruplar birbirinden
+        // tamamen izole, bir gruptaki harcama başka bir grubun bakiyesini etkilemez).
+        private static void RecalculateBalancesSync(SQLiteConnection conn, int groupId)
         {
-            var people = conn.Table<Person>().ToList();
-            var expenses = conn.Table<Expense>().ToList();
-            var allLinks = conn.Table<ExpenseParticipant>().ToList();
+            var people = conn.Table<Person>().Where(p => p.GroupId == groupId).ToList();
+            var expenses = conn.Table<Expense>().Where(e => e.GroupId == groupId).ToList();
 
             if (people.Count == 0)
                 return;
+
+            var expenseIds = expenses.Select(e => e.Id).ToList();
+            var allLinks = conn.Table<ExpenseParticipant>().ToList()
+                .Where(l => expenseIds.Contains(l.ExpenseId))
+                .ToList();
 
             foreach (var person in people)
                 person.Balance = 0;

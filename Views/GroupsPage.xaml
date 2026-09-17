@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Equaly.ViewModels"
+             xmlns:models="clr-namespace:Equaly.Models"
+             xmlns:strings="clr-namespace:Equaly.Resources.Strings"
+             x:Class="Equaly.Views.GroupsPage"
+             x:DataType="vm:GroupsViewModel"
+             BackgroundColor="#F8F9FA"
+             Title="{x:Static strings:AppStrings.GroupsTitle}">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="16">
+
+        <Label Grid.Row="0"
+               Text="{x:Static strings:AppStrings.GroupsTitle}"
+               FontSize="26"
+               FontAttributes="Bold"
+               TextColor="#2B2D42" />
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <Border Grid.Column="0"
+                    Stroke="#DEE2E6"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="White"
+                    Padding="12,0"
+                    HeightRequest="50">
+                <Entry Text="{Binding NewGroupName}"
+                       Placeholder="{x:Static strings:AppStrings.NewGroupPlaceholder}"
+                       TextColor="#2B2D42"
+                       PlaceholderColor="#ADB5BD"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <Button Grid.Column="1"
+                    Text="{x:Static strings:AppStrings.Add}"
+                    Command="{Binding AddGroupCommand}"
+                    BackgroundColor="#2B2D42"
+                    TextColor="White"
+                    CornerRadius="12"
+                    WidthRequest="80"
+                    HeightRequest="50" />
+        </Grid>
+
+        <RefreshView Grid.Row="2"
+                     Command="{Binding LoadGroupsCommand}"
+                     IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Groups}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Padding="20">
+                        <Label Text="{x:Static strings:AppStrings.NoGroupsYet}"
+                               TextColor="#ADB5BD"
+                               FontSize="16"
+                               HorizontalTextAlignment="Center"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Group">
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="{x:Static strings:AppStrings.Delete}"
+                                               BackgroundColor="#E74C3C"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GroupsViewModel}}, Path=DeleteGroupCommand}"
+                                               CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <Border Stroke="#DEE2E6"
+                                    StrokeShape="RoundRectangle 14"
+                                    BackgroundColor="White"
+                                    Padding="16"
+                                    Margin="0,0,0,10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GroupsViewModel}}, Path=SelectGroupCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           FontSize="17"
+                                           FontAttributes="Bold"
+                                           TextColor="#2B2D42"
+                                           VerticalOptions="Center" />
+
+                                    <Label Grid.Column="1"
+                                           Text="›"
+                                           FontSize="22"
+                                           TextColor="#ADB5BD"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+</ContentPage>

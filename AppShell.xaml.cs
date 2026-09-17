@@ -8,6 +8,7 @@ namespace Equaly
         {
             InitializeComponent();
 
+            Routing.RegisterRoute(nameof(PeoplePage), typeof(PeoplePage));
             Routing.RegisterRoute(nameof(AddExpensePage), typeof(AddExpensePage));
             Routing.RegisterRoute(nameof(SettlementsPage), typeof(SettlementsPage));
             Routing.RegisterRoute(nameof(ExpensesPage), typeof(ExpensesPage));

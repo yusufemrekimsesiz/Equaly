@@ -1,16 +1,14 @@
-using SQLite;
+﻿using SQLite;
 
 namespace Equaly.Models
 {
-    public class Person
+    public class Group
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        public int GroupId { get; set; }
-
         public string Name { get; set; } = string.Empty;
 
-        public decimal Balance { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

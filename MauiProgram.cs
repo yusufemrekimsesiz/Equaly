@@ -22,11 +22,12 @@ namespace Equaly
             builder.Logging.AddDebug();
 #endif
 
-            // --- Servisler (Singleton: uygulama boyunca tek instance) ---
             builder.Services.AddSingleton<DatabaseService>();
             builder.Services.AddSingleton<SettlementService>();
 
-            // --- Sayfalar ve ViewModel'ler (Transient: her navigasyonda yeni instance) ---
+            builder.Services.AddTransient<GroupsPage>();
+            builder.Services.AddTransient<GroupsViewModel>();
+
             builder.Services.AddTransient<PeoplePage>();
             builder.Services.AddTransient<PeopleViewModel>();
 

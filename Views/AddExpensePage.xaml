@@ -10,7 +10,7 @@
              Title="{Binding PageTitle}">
 
     <ScrollView>
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
               Padding="20"
               RowSpacing="16">
 
@@ -37,6 +37,21 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Grid.Row="2" Spacing="6">
+                <Label Text="{x:Static strings:AppStrings.CategoryLabel}" TextColor="#6C757D" FontSize="14" />
+                <Border Stroke="#DEE2E6"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="White"
+                        Padding="12,0"
+                        HeightRequest="50">
+                    <Picker ItemsSource="{Binding Categories}"
+                            ItemDisplayBinding="{Binding DisplayName}"
+                            SelectedItem="{Binding SelectedCategory}"
+                            TextColor="#2B2D42"
+                            VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="3" Spacing="6">
                 <Label Text="{x:Static strings:AppStrings.AmountLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
@@ -52,7 +67,7 @@
                 </Border>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Grid.Row="3" Spacing="6">
+            <VerticalStackLayout Grid.Row="4" Spacing="6">
                 <Label Text="{x:Static strings:AppStrings.DescriptionLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
@@ -67,7 +82,7 @@
                 </Border>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Grid.Row="4" Spacing="6">
+            <VerticalStackLayout Grid.Row="5" Spacing="6">
                 <Label Text="{x:Static strings:AppStrings.ParticipantsLabel}" TextColor="#6C757D" FontSize="14" />
                 <Border Stroke="#DEE2E6"
                         StrokeShape="RoundRectangle 12"
@@ -116,12 +131,12 @@
                 </Border>
             </VerticalStackLayout>
 
-            <Label Grid.Row="5"
+            <Label Grid.Row="6"
                    Text="{Binding ErrorMessage}"
                    TextColor="#E74C3C"
                    FontSize="13" />
 
-            <Button Grid.Row="6"
+            <Button Grid.Row="7"
                     Text="{Binding SaveButtonText}"
                     Command="{Binding SaveExpenseCommand}"
                     BackgroundColor="#4361EE"
@@ -129,7 +144,7 @@
                     CornerRadius="14"
                     HeightRequest="52" />
 
-            <Button Grid.Row="7"
+            <Button Grid.Row="8"
                     Text="{x:Static strings:AppStrings.Cancel}"
                     Command="{Binding CancelCommand}"
                     BackgroundColor="Transparent"

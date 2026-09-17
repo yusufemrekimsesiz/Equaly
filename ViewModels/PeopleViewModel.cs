@@ -20,6 +20,15 @@ namespace Equaly.ViewModels
         [ObservableProperty]
         private bool isBusy;
 
+        [ObservableProperty]
+        private bool showUndoBanner;
+
+        [ObservableProperty]
+        private string undoMessage = string.Empty;
+
+        private string _lastDeletedPersonName;
+        private CancellationTokenSource _undoCts;
+
         public PeopleViewModel(DatabaseService databaseService)
         {
             _databaseService = databaseService;
@@ -31,11 +40,17 @@ namespace Equaly.ViewModels
             if (IsBusy)
                 return;
 
+            if (!AppSession.HasSelectedGroup)
+            {
+                await Shell.Current.GoToAsync($"//{nameof(GroupsPage)}");
+                return;
+            }
+
             IsBusy = true;
 
             try
             {
-                var people = await _databaseService.GetPeopleAsync();
+                var people = await _databaseService.GetPeopleAsync(AppSession.CurrentGroupId);
 
                 People.Clear();
                 foreach (var person in people)
@@ -55,7 +70,7 @@ namespace Equaly.ViewModels
 
             try
             {
-                await _databaseService.AddPersonAsync(NewPersonName);
+                await _databaseService.AddPersonAsync(AppSession.CurrentGroupId, NewPersonName);
                 NewPersonName = string.Empty;
                 await LoadPeopleAsync();
             }
@@ -84,6 +99,12 @@ namespace Equaly.ViewModels
         }
 
         [RelayCommand]
+        private async Task GoToGroupsAsync()
+        {
+            await Shell.Current.GoToAsync($"//{nameof(GroupsPage)}");
+        }
+
+        [RelayCommand]
         private async Task DeletePersonAsync(Person person)
         {
             if (person is null)
@@ -105,7 +126,52 @@ namespace Equaly.ViewModels
                 return;
             }
 
+            // Geri Al bandını göster ve birkaç saniye sonra otomatik gizle.
+            _lastDeletedPersonName = person.Name;
+            UndoMessage = AppStrings.PersonDeletedUndoMessage(person.Name);
+            ShowUndoBanner = true;
+
+            _undoCts?.Cancel();
+            _undoCts = new CancellationTokenSource();
+            _ = HideUndoBannerAfterDelayAsync(_undoCts.Token);
+
             await LoadPeopleAsync();
+        }
+
+        private async Task HideUndoBannerAfterDelayAsync(CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(5000, token);
+                ShowUndoBanner = false;
+            }
+            catch (TaskCanceledException)
+            {
+                // Kullanıcı Geri Al'a bastı ya da başka bir silme işlemi zamanlayıcıyı iptal etti.
+            }
+        }
+
+        [RelayCommand]
+        private async Task UndoDeletePersonAsync()
+        {
+            _undoCts?.Cancel();
+            ShowUndoBanner = false;
+
+            if (string.IsNullOrEmpty(_lastDeletedPersonName))
+                return;
+
+            var nameToRestore = _lastDeletedPersonName;
+            _lastDeletedPersonName = null;
+
+            try
+            {
+                await _databaseService.AddPersonAsync(AppSession.CurrentGroupId, nameToRestore);
+                await LoadPeopleAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+                await Shell.Current.DisplayAlert(AppStrings.CannotAddTitle, ex.Message, AppStrings.Ok);
+            }
         }
     }
 }

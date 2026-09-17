@@ -11,11 +11,22 @@
 
     <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="16">
 
-        <Label Grid.Row="0"
-               Text="{x:Static strings:AppStrings.SettlementsTitle}"
-               FontSize="22"
-               FontAttributes="Bold"
-               TextColor="#2B2D42" />
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0"
+                   Text="{x:Static strings:AppStrings.SettlementsTitle}"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="#2B2D42" />
+
+            <Button Grid.Column="1"
+                    Text="{x:Static strings:AppStrings.ShareSummary}"
+                    Command="{Binding ShareSummaryCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#4361EE"
+                    FontSize="13"
+                    Padding="0"
+                    VerticalOptions="Center" />
+        </Grid>
 
         <RefreshView Grid.Row="1"
                      Command="{Binding LoadSettlementsCommand}"
@@ -38,7 +49,7 @@
                                 BackgroundColor="White"
                                 Padding="16"
                                 Margin="0,0,0,10">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
                                 <Label Grid.Row="0" Grid.Column="0"
                                        Grid.ColumnSpan="2"
                                        Text="{Binding DisplayText}"
@@ -55,6 +66,17 @@
                                        FontSize="16"
                                        FontAttributes="Bold"
                                        TextColor="#4361EE" />
+
+                                <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Text="{x:Static strings:AppStrings.MarkAsPaid}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SettlementsViewModel}}, Path=MarkAsPaidCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#EAFBF1"
+                                        TextColor="#2ECC71"
+                                        CornerRadius="10"
+                                        HeightRequest="40"
+                                        FontSize="13"
+                                        Margin="0,10,0,0" />
                             </Grid>
                         </Border>
                     </DataTemplate>

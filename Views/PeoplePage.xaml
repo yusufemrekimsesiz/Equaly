@@ -14,118 +14,162 @@
         <conv:BalanceToColorConverter x:Key="BalanceToColorConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="20" RowSpacing="16">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-        <Label Grid.Row="0"
-               Text="{x:Static strings:AppStrings.GroupBalancesTitle}"
-               FontSize="26"
-               FontAttributes="Bold"
-               TextColor="#2B2D42" />
+    <Grid>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Border Grid.Column="0"
-                    Stroke="#DEE2E6"
-                    StrokeShape="RoundRectangle 12"
-                    BackgroundColor="White"
-                    Padding="12,0"
-                    HeightRequest="50">
-                <Entry Text="{Binding NewPersonName}"
-                       Placeholder="{x:Static strings:AppStrings.NewPersonPlaceholder}"
-                       TextColor="#2B2D42"
-                       PlaceholderColor="#ADB5BD"
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="20" RowSpacing="16">
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="{x:Static strings:AppStrings.GroupBalancesTitle}"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#2B2D42" />
+
+                <Button Grid.Column="1"
+                        Text="{x:Static strings:AppStrings.BackToGroupsNav}"
+                        Command="{Binding GoToGroupsCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#4361EE"
+                        FontSize="14"
+                        Padding="0"
+                        VerticalOptions="Center" />
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Border Grid.Column="0"
+                        Stroke="#DEE2E6"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="White"
+                        Padding="12,0"
+                        HeightRequest="50">
+                    <Entry Text="{Binding NewPersonName}"
+                           Placeholder="{x:Static strings:AppStrings.NewPersonPlaceholder}"
+                           TextColor="#2B2D42"
+                           PlaceholderColor="#ADB5BD"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <Button Grid.Column="1"
+                        Text="{x:Static strings:AppStrings.Add}"
+                        Command="{Binding AddPersonCommand}"
+                        BackgroundColor="#2B2D42"
+                        TextColor="White"
+                        CornerRadius="12"
+                        WidthRequest="80"
+                        HeightRequest="50" />
+            </Grid>
+
+            <RefreshView Grid.Row="3"
+                         Command="{Binding LoadPeopleCommand}"
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding People}">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                            <Label Text="{x:Static strings:AppStrings.NoPeopleYet}"
+                                   TextColor="#ADB5BD"
+                                   FontSize="16"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Person">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="{x:Static strings:AppStrings.Delete}"
+                                                   BackgroundColor="#E74C3C"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PeopleViewModel}}, Path=DeletePersonCommand}"
+                                                   CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Border Stroke="#DEE2E6"
+                                        StrokeShape="RoundRectangle 14"
+                                        BackgroundColor="White"
+                                        Padding="16"
+                                        Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Name}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               TextColor="#2B2D42"
+                                               VerticalOptions="Center" />
+
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Balance, StringFormat='{0:0.##} TL'}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               TextColor="{Binding Balance, Converter={StaticResource BalanceToColorConverter}}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+
+            <Grid Grid.Row="4" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                <Button Grid.Column="0"
+                        Text="{x:Static strings:AppStrings.ExpensesNav}"
+                        Command="{Binding GoToExpensesCommand}"
+                        BackgroundColor="#F1F3F5"
+                        TextColor="#2B2D42"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        FontSize="13" />
+
+                <Button Grid.Column="1"
+                        Text="{x:Static strings:AppStrings.AddExpenseNav}"
+                        Command="{Binding GoToAddExpenseCommand}"
+                        BackgroundColor="#2B2D42"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        FontSize="13" />
+
+                <Button Grid.Column="2"
+                        Text="{x:Static strings:AppStrings.SettleUpNav}"
+                        Command="{Binding GoToSettlementsCommand}"
+                        BackgroundColor="#4361EE"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        FontSize="13" />
+            </Grid>
+
+        </Grid>
+
+        <!-- Geri Al bandı: silme sonrası birkaç saniyeliğine ekranın altında belirir -->
+        <Border IsVisible="{Binding ShowUndoBanner}"
+                VerticalOptions="End"
+                Margin="20,0,20,20"
+                Padding="16,12"
+                BackgroundColor="#2B2D42"
+                StrokeShape="RoundRectangle 14">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Label Grid.Column="0"
+                       Text="{Binding UndoMessage}"
+                       TextColor="White"
+                       FontSize="14"
                        VerticalOptions="Center" />
-            </Border>
 
-            <Button Grid.Column="1"
-                    Text="{x:Static strings:AppStrings.Add}"
-                    Command="{Binding AddPersonCommand}"
-                    BackgroundColor="#2B2D42"
-                    TextColor="White"
-                    CornerRadius="12"
-                    WidthRequest="80"
-                    HeightRequest="50" />
-        </Grid>
-
-        <RefreshView Grid.Row="2"
-                     Command="{Binding LoadPeopleCommand}"
-                     IsRefreshing="{Binding IsBusy}">
-            <CollectionView ItemsSource="{Binding People}">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
-                        <Label Text="{x:Static strings:AppStrings.NoPeopleYet}"
-                               TextColor="#ADB5BD"
-                               FontSize="16"
-                               HorizontalOptions="Center" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Person">
-                        <SwipeView>
-                            <SwipeView.RightItems>
-                                <SwipeItems>
-                                    <SwipeItem Text="{x:Static strings:AppStrings.Delete}"
-                                               BackgroundColor="#E74C3C"
-                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PeopleViewModel}}, Path=DeletePersonCommand}"
-                                               CommandParameter="{Binding .}" />
-                                </SwipeItems>
-                            </SwipeView.RightItems>
-
-                            <Border Stroke="#DEE2E6"
-                                    StrokeShape="RoundRectangle 14"
-                                    BackgroundColor="White"
-                                    Padding="16"
-                                    Margin="0,0,0,10">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Name}"
-                                           FontSize="17"
-                                           FontAttributes="Bold"
-                                           TextColor="#2B2D42"
-                                           VerticalOptions="Center" />
-
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Balance, StringFormat='{0:0.##} TL'}"
-                                           FontSize="17"
-                                           FontAttributes="Bold"
-                                           TextColor="{Binding Balance, Converter={StaticResource BalanceToColorConverter}}"
-                                           VerticalOptions="Center" />
-                                </Grid>
-                            </Border>
-                        </SwipeView>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
-
-        <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8">
-            <Button Grid.Column="0"
-                    Text="{x:Static strings:AppStrings.ExpensesNav}"
-                    Command="{Binding GoToExpensesCommand}"
-                    BackgroundColor="#F1F3F5"
-                    TextColor="#2B2D42"
-                    CornerRadius="14"
-                    HeightRequest="52"
-                    FontSize="13" />
-
-            <Button Grid.Column="1"
-                    Text="{x:Static strings:AppStrings.AddExpenseNav}"
-                    Command="{Binding GoToAddExpenseCommand}"
-                    BackgroundColor="#2B2D42"
-                    TextColor="White"
-                    CornerRadius="14"
-                    HeightRequest="52"
-                    FontSize="13" />
-
-            <Button Grid.Column="2"
-                    Text="{x:Static strings:AppStrings.SettleUpNav}"
-                    Command="{Binding GoToSettlementsCommand}"
-                    BackgroundColor="#4361EE"
-                    TextColor="White"
-                    CornerRadius="14"
-                    HeightRequest="52"
-                    FontSize="13" />
-        </Grid>
+                <Button Grid.Column="1"
+                        Text="{x:Static strings:AppStrings.Undo}"
+                        Command="{Binding UndoDeletePersonCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#4CC9F0"
+                        FontAttributes="Bold"
+                        Padding="0"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Border>
 
     </Grid>
 </ContentPage>

@@ -8,92 +8,126 @@
              BackgroundColor="#F8F9FA"
              Title="{x:Static strings:AppStrings.ExpensesTitle}">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="16">
+    <Grid>
 
-        <Label Grid.Row="0"
-               Text="{x:Static strings:AppStrings.ExpensesTitle}"
-               FontSize="24"
-               FontAttributes="Bold"
-               TextColor="#2B2D42" />
+        <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="16">
 
-        <Button Grid.Row="1"
-                Text="{x:Static strings:AppStrings.NewExpenseButton}"
-                Command="{Binding AddNewExpenseCommand}"
-                BackgroundColor="#4361EE"
-                TextColor="White"
-                CornerRadius="14"
-                HeightRequest="48" />
+            <Label Grid.Row="0"
+                   Text="{x:Static strings:AppStrings.ExpensesTitle}"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#2B2D42" />
 
-        <RefreshView Grid.Row="2"
-                     Command="{Binding LoadExpensesCommand}"
-                     IsRefreshing="{Binding IsBusy}">
-            <CollectionView ItemsSource="{Binding Expenses}">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                        <Label Text="{x:Static strings:AppStrings.NoExpensesYet}"
-                               TextColor="#ADB5BD"
-                               FontSize="16"
-                               HorizontalOptions="Center" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
+            <Button Grid.Row="1"
+                    Text="{x:Static strings:AppStrings.NewExpenseButton}"
+                    Command="{Binding AddNewExpenseCommand}"
+                    BackgroundColor="#4361EE"
+                    TextColor="White"
+                    CornerRadius="14"
+                    HeightRequest="48" />
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ExpenseListItem">
-                        <Border Stroke="#DEE2E6"
-                                StrokeShape="RoundRectangle 14"
-                                BackgroundColor="White"
-                                Padding="16"
-                                Margin="0,0,0,10">
-                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+            <RefreshView Grid.Row="2"
+                         Command="{Binding LoadExpensesCommand}"
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding Expenses}">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label Text="{x:Static strings:AppStrings.NoExpensesYet}"
+                                   TextColor="#ADB5BD"
+                                   FontSize="16"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
 
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Description}"
-                                       FontSize="17"
-                                       FontAttributes="Bold"
-                                       TextColor="#2B2D42" />
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ExpenseListItem">
+                            <Border Stroke="#DEE2E6"
+                                    StrokeShape="RoundRectangle 14"
+                                    BackgroundColor="White"
+                                    Padding="16"
+                                    Margin="0,0,0,10">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
 
-                                <Label Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding Amount, StringFormat='{0:0.##} TL'}"
-                                       FontSize="17"
-                                       FontAttributes="Bold"
-                                       TextColor="#4361EE" />
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Description}"
+                                           FontSize="17"
+                                           FontAttributes="Bold"
+                                           TextColor="#2B2D42" />
 
-                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                       Text="{Binding PayerDisplay}"
-                                       FontSize="13"
-                                       TextColor="#6C757D" />
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding Amount, StringFormat='{0:0.##} TL'}"
+                                           FontSize="17"
+                                           FontAttributes="Bold"
+                                           TextColor="#4361EE" />
 
-                                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                                      ColumnDefinitions="*,*"
-                                      ColumnSpacing="10"
-                                      Margin="0,10,0,0">
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="6" Margin="0,4,0,0">
+                                        <Label Text="{Binding CategoryEmoji}" FontSize="13" />
+                                        <Label Text="{Binding CategoryDisplayName}" FontSize="13" TextColor="#4361EE" FontAttributes="Bold" />
+                                    </HorizontalStackLayout>
 
-                                    <Button Grid.Column="0"
-                                            Text="{x:Static strings:AppStrings.Edit}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpensesViewModel}}, Path=EditExpenseCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#F1F3F5"
-                                            TextColor="#2B2D42"
-                                            CornerRadius="10"
-                                            HeightRequest="40"
-                                            FontSize="13" />
+                                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding PayerDisplay}"
+                                           FontSize="13"
+                                           TextColor="#6C757D" />
 
-                                    <Button Grid.Column="1"
-                                            Text="{x:Static strings:AppStrings.Delete}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpensesViewModel}}, Path=DeleteExpenseCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#FDEEEE"
-                                            TextColor="#E74C3C"
-                                            CornerRadius="10"
-                                            HeightRequest="40"
-                                            FontSize="13" />
+                                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="*,*"
+                                          ColumnSpacing="10"
+                                          Margin="0,10,0,0">
+
+                                        <Button Grid.Column="0"
+                                                Text="{x:Static strings:AppStrings.Edit}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpensesViewModel}}, Path=EditExpenseCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#F1F3F5"
+                                                TextColor="#2B2D42"
+                                                CornerRadius="10"
+                                                HeightRequest="40"
+                                                FontSize="13" />
+
+                                        <Button Grid.Column="1"
+                                                Text="{x:Static strings:AppStrings.Delete}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpensesViewModel}}, Path=DeleteExpenseCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#FDEEEE"
+                                                TextColor="#E74C3C"
+                                                CornerRadius="10"
+                                                HeightRequest="40"
+                                                FontSize="13" />
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+
+        </Grid>
+
+        <!-- Geri Al bandı -->
+        <Border IsVisible="{Binding ShowUndoBanner}"
+                VerticalOptions="End"
+                Margin="20,0,20,20"
+                Padding="16,12"
+                BackgroundColor="#2B2D42"
+                StrokeShape="RoundRectangle 14">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Label Grid.Column="0"
+                       Text="{Binding UndoMessage}"
+                       TextColor="White"
+                       FontSize="14"
+                       VerticalOptions="Center" />
+
+                <Button Grid.Column="1"
+                        Text="{x:Static strings:AppStrings.Undo}"
+                        Command="{Binding UndoDeleteExpenseCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#4CC9F0"
+                        FontAttributes="Bold"
+                        Padding="0"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Border>
 
     </Grid>
 </ContentPage>

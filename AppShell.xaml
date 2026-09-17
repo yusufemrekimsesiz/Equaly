@@ -5,7 +5,7 @@
        x:Class="Equaly.AppShell"
        Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent ContentTemplate="{DataTemplate views:PeoplePage}"
-                  Route="PeoplePage" />
+    <ShellContent ContentTemplate="{DataTemplate views:GroupsPage}"
+                  Route="GroupsPage" />
 
 </Shell>
